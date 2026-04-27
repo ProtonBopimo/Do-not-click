@@ -1,86 +1,64 @@
 <!DOCTYPE html>
 <html>
 <head>
-  <title>RIGGED ENTITY SYSTEM</title>
+<title>System Simulation</title>
 
-  <style>
-    body {
-      margin: 0;
-      overflow: hidden;
-      font-family: monospace;
-      background: black;
-    }
+<style>
+body {
+  margin: 0;
+  overflow: hidden;
+  font-family: monospace;
+  background: black;
+}
 
-    /* ===== CLICKER ===== */
-    #clicker {
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      height: 100vh;
-      background: #008080;
-    }
+/* CLICKER */
+#clicker {
+  display:flex;
+  justify-content:center;
+  align-items:center;
+  height:100vh;
+  background:#008080;
+}
 
-    .window {
-      width: 420px;
-      background: #c0c0c0;
-      border: 3px solid black;
-      box-shadow: 5px 5px 0 black;
-      padding: 20px;
-      text-align: center;
-    }
+.window {
+  width:400px;
+  background:#c0c0c0;
+  padding:20px;
+  text-align:center;
+  border:3px solid black;
+}
 
-    .btn {
-      width: 120px;
-      height: 120px;
-      border-radius: 50%;
-      background: red;
-      color: white;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      margin: 15px auto;
-      cursor: pointer;
-      box-shadow: 0 6px 0 #700;
-    }
+.btn {
+  width:120px;
+  height:120px;
+  border-radius:50%;
+  background:red;
+  color:white;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  margin:auto;
+  cursor:pointer;
+}
 
-    /* ===== GAME ===== */
-    #game {
-      display: none;
-    }
+/* GAME */
+#game {
+  display:none;
+}
 
-    canvas {
-      display: block;
-      background: black;
-    }
+canvas {
+  display:block;
+  background:black;
+}
 
-    /* VHS EFFECT */
-    .vhs {
-      filter: contrast(1.2) brightness(0.9) saturate(1.5) hue-rotate(5deg);
-    }
-
-    /* creepy flash */
-    #flash {
-      position: absolute;
-      inset: 0;
-      background: black;
-      opacity: 0;
-      pointer-events: none;
-    }
-
-    #hud {
-      position: absolute;
-      top: 10px;
-      left: 10px;
-      color: white;
-    }
-
-    img {
-      position: absolute;
-      width: 200px;
-      display: none;
-      pointer-events: none;
-    }
-  </style>
+/* HUD */
+#hud {
+  position:absolute;
+  top:10px;
+  left:10px;
+  color:white;
+}
+</style>
 </head>
 
 <body>
@@ -88,164 +66,147 @@
 <!-- CLICKER -->
 <div id="clicker">
   <div class="window">
-    <h3>SYSTEM SIMULATION</h3>
+    <h3>CLICK SYSTEM</h3>
     <div class="btn" id="btn">CLICK</div>
-    <div>Clicks: <span id="count">0</span></div>
+    <p>Clicks: <span id="count">0</span></p>
   </div>
 </div>
 
 <!-- GAME -->
 <div id="game">
-  <div id="hud">Find exit... survive...</div>
-  <canvas id="c" width="800" height="400"></canvas>
-  <div id="flash"></div>
-
-  <!-- creepy overlay images -->
-  <img id="img1" src="https://i.imgur.com/8QfQZ6x.jpg">
-  <img id="img2" src="https://i.imgur.com/1X6Z5bA.jpg">
+  <div id="hud">WASD move | Arrow keys turn</div>
+  <canvas id="c" width="800" height="450"></canvas>
 </div>
 
 <script>
-/* ================= CLICKER ================= */
 
 let clicks = 0;
 
 const btn = document.getElementById("btn");
 const count = document.getElementById("count");
+const clicker = document.getElementById("clicker");
+const game = document.getElementById("game");
 
 btn.onclick = () => {
   clicks++;
   count.textContent = clicks;
 
+  if (clicks === 100) {
+    window.open("https://www.youtube.com/embed/dQw4w9WgXcQ?autoplay=1");
+  }
+
   if (clicks === 200) startGame();
 };
 
-/* ================= GAME SETUP ================= */
+/* ===== GAME ===== */
 
 const canvas = document.getElementById("c");
 const ctx = canvas.getContext("2d");
-const game = document.getElementById("game");
-const clicker = document.getElementById("clicker");
 
-const flash = document.getElementById("flash");
-const img1 = document.getElementById("img1");
-const img2 = document.getElementById("img2");
-
-/* GRID MAP (1 = wall) */
-const map = [
-  [1,1,1,1,1,1,1,1,1,1],
-  [1,0,0,0,1,0,0,0,0,1],
-  [1,0,1,0,1,0,1,1,0,1],
-  [1,0,1,0,0,0,0,1,0,1],
-  [1,0,1,1,1,1,0,1,0,1],
-  [1,0,0,0,0,0,0,1,0,1],
-  [1,1,1,1,1,1,1,1,1,1]
-];
-
-let player = { x: 100, y: 100, a: 0 };
-let monster = { x: 500, y: 300 };
-let speed = 2;
-let mSpeed = 1.2;
+let player = {x:100,y:100,angle:0};
+let monster = {x:500,y:300};
 
 let keys = {};
 
-document.addEventListener("keydown", e => keys[e.key] = true);
-document.addEventListener("keyup", e => keys[e.key] = false);
+document.addEventListener("keydown", e => keys[e.key]=true);
+document.addEventListener("keyup", e => keys[e.key]=false);
 
-/* ================= COLLISION ================= */
+/* MAP */
+const map = [
+[1,1,1,1,1,1,1,1],
+[1,0,0,0,0,0,0,1],
+[1,0,1,0,1,0,0,1],
+[1,0,1,0,1,0,0,1],
+[1,0,0,0,0,0,0,1],
+[1,1,1,1,1,1,1,1]
+];
 
-function isWall(x, y) {
-  let gx = Math.floor(x / 80);
-  let gy = Math.floor(y / 80);
-  return map[gy] && map[gy][gx] === 1;
+function wall(x,y){
+  let gx=Math.floor(x/100);
+  let gy=Math.floor(y/100);
+  return map[gy]?.[gx]===1;
 }
 
-/* ================= GAME LOOP ================= */
-
-function startGame() {
-  clicker.style.display = "none";
-  game.style.display = "block";
-  canvas.classList.add("vhs");
+function startGame(){
+  clicker.style.display="none";
+  game.style.display="block";
   loop();
 }
 
-function update() {
+/* MOVEMENT */
+function update(){
 
-  let nx = player.x;
-  let ny = player.y;
+  // TURN
+  if(keys["ArrowLeft"]) player.angle -= 0.05;
+  if(keys["ArrowRight"]) player.angle += 0.05;
 
-  if (keys["w"]) ny -= speed;
-  if (keys["s"]) ny += speed;
-  if (keys["a"]) nx -= speed;
-  if (keys["d"]) nx += speed;
+  let nx=player.x;
+  let ny=player.y;
 
-  if (!isWall(nx, player.y)) player.x = nx;
-  if (!isWall(player.x, ny)) player.y = ny;
+  let speed=3;
 
-  /* MONSTER CHASE (slower = outrunnable) */
-  let dx = player.x - monster.x;
-  let dy = player.y - monster.y;
-  let dist = Math.sqrt(dx*dx + dy*dy);
-
-  monster.x += (dx / dist) * mSpeed;
-  monster.y += (dy / dist) * mSpeed;
-
-  /* VHS + CHAOS WHEN CLOSE */
-  if (dist < 200) {
-    canvas.style.filter = "contrast(1.5) hue-rotate(20deg) saturate(2)";
-  } else {
-    canvas.style.filter = "";
+  if(keys["w"]){
+    nx += Math.cos(player.angle)*speed;
+    ny += Math.sin(player.angle)*speed;
+  }
+  if(keys["s"]){
+    nx -= Math.cos(player.angle)*speed;
+    ny -= Math.sin(player.angle)*speed;
   }
 
-  /* creepy flashes */
-  if (dist < 120) {
-    flash.style.opacity = Math.random() * 0.4;
+  if(!wall(nx,player.y)) player.x=nx;
+  if(!wall(player.x,ny)) player.y=ny;
 
-    if (Math.random() < 0.01) {
-      let img = Math.random() < 0.5 ? img1 : img2;
-      img.style.left = Math.random() * window.innerWidth + "px";
-      img.style.top = Math.random() * window.innerHeight + "px";
-      img.style.display = "block";
+  /* MONSTER (slow so you can escape) */
+  let dx=player.x-monster.x;
+  let dy=player.y-monster.y;
+  let d=Math.sqrt(dx*dx+dy*dy);
 
-      setTimeout(() => img.style.display = "none", 200);
+  monster.x += (dx/d)*1.5;
+  monster.y += (dy/d)*1.5;
+}
+
+/* SIMPLE 3D VIEW */
+function draw(){
+
+  ctx.fillStyle="black";
+  ctx.fillRect(0,0,800,450);
+
+  for(let x=0;x<800;x+=5){
+
+    let ray=(player.angle - 0.6) + (x/800)*1.2;
+
+    let dist=0;
+    while(dist<500){
+      dist+=2;
+      let rx=player.x+Math.cos(ray)*dist;
+      let ry=player.y+Math.sin(ray)*dist;
+
+      if(wall(rx,ry)) break;
     }
+
+    let h=400/dist*200;
+    ctx.fillStyle=`rgb(${255-dist},0,0)`;
+    ctx.fillRect(x,225-h/2,5,h);
+  }
+
+  /* monster proximity (ONLY subtle warning) */
+  let dx=player.x-monster.x;
+  let dy=player.y-monster.y;
+  let d=Math.sqrt(dx*dx+dy*dy);
+
+  if(d<150){
+    ctx.fillStyle="rgba(255,0,0,0.05)";
+    ctx.fillRect(0,0,800,450);
   }
 }
 
-/* ================= SIMPLE 3D RENDER (raycast) ================= */
-
-function draw3D() {
-  const w = canvas.width;
-  const h = canvas.height;
-
-  ctx.fillStyle = "black";
-  ctx.fillRect(0,0,w,h);
-
-  for (let x = 0; x < w; x += 5) {
-    let rayAngle = (x / w) * Math.PI/3 - Math.PI/6;
-
-    let dist = 0;
-    while (dist < 500) {
-      dist += 2;
-      let rx = player.x + Math.cos(rayAngle) * dist;
-      let ry = player.y + Math.sin(rayAngle) * dist;
-
-      if (isWall(rx, ry)) break;
-    }
-
-    let shade = 255 - dist;
-    ctx.fillStyle = `rgb(${shade},0,0)`;
-    ctx.fillRect(x, h/2 - 200/dist*200, 5, 400/dist*400);
-  }
-}
-
-/* ================= LOOP ================= */
-
-function loop() {
+function loop(){
   update();
-  draw3D();
+  draw();
   requestAnimationFrame(loop);
 }
+
 </script>
 
 </body>
