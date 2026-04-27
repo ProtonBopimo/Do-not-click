@@ -47,7 +47,6 @@
       align-items: center;
       user-select: none;
 
-      /* 3D */
       box-shadow: 0 6px 0 #700, 0 8px 10px rgba(0,0,0,0.5);
       transition: all 0.1s ease;
     }
@@ -152,6 +151,16 @@ btn.addEventListener("click", () => {
     randomEvents[i]();
   }
 
+  // 📺 67 CLICK EVENT (your video)
+  if (clicks === 67) {
+    msg.textContent = "📺 something unlocked...";
+
+    container.style.display = "block";
+
+    const videoID = "fyiIY_bnecU";
+    rick.src = `https://www.youtube.com/embed/${videoID}?autoplay=1&mute=1`;
+  }
+
   if (clicks === 90) msg.textContent = "⚠ Final warning...";
   if (clicks === 99) msg.textContent = "🚫 DO NOT CLICK AGAIN.";
 
@@ -159,11 +168,8 @@ btn.addEventListener("click", () => {
     msg.textContent = "💀 you did this to yourself";
 
     container.style.display = "block";
-
-    // autoplay (muted first so browser allows it)
     rick.src = "https://www.youtube.com/embed/dQw4w9WgXcQ?autoplay=1&mute=1";
 
-    // try to enable sound after
     setTimeout(() => {
       rick.src = "https://www.youtube.com/embed/dQw4w9WgXcQ?autoplay=1";
     }, 800);
