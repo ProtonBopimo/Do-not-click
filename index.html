@@ -1,181 +1,260 @@
 <!DOCTYPE html>
 <html>
 <head>
-  <title>Entity Chase</title>
+  <title>System Simulation</title>
 
   <style>
     body {
       margin: 0;
+      font-family: Tahoma, Arial;
+      background: #008080;
       overflow: hidden;
-      background: black;
-      font-family: monospace;
-      color: white;
+      transition: 0.3s;
     }
 
-    #menu {
-      position: absolute;
-      inset: 0;
+    /* ===== CLICKER ===== */
+    #clicker {
       display: flex;
       justify-content: center;
       align-items: center;
+      height: 100vh;
+    }
+
+    .window {
+      width: 420px;
+      background: #c0c0c0;
+      border: 3px solid black;
+      box-shadow: 5px 5px 0 black;
+      padding: 20px;
+      text-align: center;
+    }
+
+    .title {
+      background: navy;
+      color: white;
+      padding: 5px;
+      font-weight: bold;
+      margin-bottom: 15px;
+    }
+
+    .btn {
+      width: 120px;
+      height: 120px;
+      border-radius: 50%;
+      background: red;
+      border: 4px solid #300;
+      color: white;
+      font-size: 20px;
+      margin: 15px auto;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      cursor: pointer;
+      box-shadow: 0 6px 0 #700;
+    }
+
+    .msg { color: darkred; margin-top: 10px; }
+
+    /* ===== GAMBLE ===== */
+    #gambler {
+      display: none;
+      position: absolute;
+      inset: 0;
       background: #111;
+      color: white;
+      justify-content: center;
+      align-items: center;
       flex-direction: column;
-      gap: 10px;
     }
 
     button {
       padding: 10px 20px;
-      font-size: 18px;
-      cursor: pointer;
+      font-size: 16px;
+    }
+
+    /* ===== GAME ===== */
+    #game {
+      display: none;
     }
 
     canvas {
-      display: none;
-      background: #000;
+      background: black;
+      display: block;
     }
 
     #hud {
       position: absolute;
       top: 10px;
       left: 10px;
-      font-size: 16px;
+      color: white;
+      font-family: monospace;
     }
   </style>
 </head>
 
 <body>
 
-<div id="menu">
-  <h1>ENTITY CHASE</h1>
-  <button onclick="start('easy')">Easy</button>
-  <button onclick="start('medium')">Medium</button>
-  <button onclick="start('hard')">Hard</button>
+<!-- CLICKER -->
+<div id="clicker">
+  <div class="window">
+    <div class="title">SYSTEM SIMULATION</div>
+
+    <div class="btn" id="btn">CLICK</div>
+
+    <div>Clicks: <span id="count">0</span></div>
+    <div class="msg" id="msg"></div>
+  </div>
 </div>
 
-<div id="hud"></div>
-<canvas id="c" width="800" height="500"></canvas>
+<!-- GAMBLE -->
+<div id="gambler">
+  <h2>RIGGED SYSTEM</h2>
+  <button onclick="roll()">ROLL</button>
+  <p id="rollText"></p>
+</div>
+
+<!-- GAME -->
+<div id="game">
+  <div id="hud"></div>
+  <canvas id="c" width="800" height="500"></canvas>
+</div>
 
 <script>
+let clicks = 0;
+
+const btn = document.getElementById("btn");
+const count = document.getElementById("count");
+const msg = document.getElementById("msg");
+
+const clicker = document.getElementById("clicker");
+const gambler = document.getElementById("gambler");
+const game = document.getElementById("game");
+const rollText = document.getElementById("rollText");
+
+/* ===== CLICKER LOGIC ===== */
+
+btn.onclick = () => {
+  clicks++;
+  count.textContent = clicks;
+
+  if (clicks === 67) msg.textContent = "📺 anomaly detected";
+  if (clicks === 100) msg.textContent = "💀 something answered...";
+  if (clicks === 200) {
+    clicker.style.display = "none";
+    gambler.style.display = "flex";
+  }
+};
+
+/* ===== RIGGED GAMBLE ===== */
+
+let difficulty = "hard";
+
+function roll() {
+  let r = Math.random();
+
+  if (r < 0.99) {
+    difficulty = "hard";
+    rollText.textContent = "HARD (99%)";
+  } else if (r < 0.999999) {
+    difficulty = "medium";
+    rollText.textContent = "MEDIUM (1%)";
+  } else {
+    difficulty = "easy";
+    rollText.textContent = "EASY (0%)";
+  }
+
+  setTimeout(startGame, 1000);
+}
+
+/* ===== SURVIVAL GAME ===== */
+
 const canvas = document.getElementById("c");
 const ctx = canvas.getContext("2d");
 const hud = document.getElementById("hud");
-const menu = document.getElementById("menu");
 
-let player, monster, key, speed, mSpeed, level;
+let player, monster, orb;
 let keys = {};
-
-function start(diff) {
-  menu.style.display = "none";
-  canvas.style.display = "block";
-
-  level = diff;
-
-  if (diff === "easy") {
-    speed = 6;
-    mSpeed = 2;
-  }
-  if (diff === "medium") {
-    speed = 5;
-    mSpeed = 3;
-  }
-  if (diff === "hard") {
-    speed = 4;
-    mSpeed = 4.5;
-  }
-
-  player = { x: 100, y: 100, size: 20 };
-  monster = { x: 700, y: 400, size: 25 };
-  key = spawnKey();
-
-  loop();
-}
-
-function spawnKey() {
-  return {
-    x: Math.random() * 750,
-    y: Math.random() * 450,
-    size: 15,
-    taken: false
-  };
-}
 
 document.addEventListener("keydown", e => keys[e.key] = true);
 document.addEventListener("keyup", e => keys[e.key] = false);
 
-function clamp(val, min, max) {
-  return Math.max(min, Math.min(max, val));
+function startGame() {
+  gambler.style.display = "none";
+  game.style.display = "block";
+
+  player = {x:100,y:100,size:20};
+  monster = {x:700,y:400,size:25};
+
+  orb = {
+    x: Math.random()*750,
+    y: Math.random()*450,
+    taken: false
+  };
+
+  loop();
+}
+
+function monsterSpeed() {
+  if (difficulty === "hard") return 4.5;
+  if (difficulty === "medium") return 3;
+  return 2;
+}
+
+function loop() {
+  update();
+  draw();
+  requestAnimationFrame(loop);
 }
 
 function update() {
-  // PLAYER MOVE
+  let speed = 5;
+
   if (keys["w"]) player.y -= speed;
   if (keys["s"]) player.y += speed;
   if (keys["a"]) player.x -= speed;
   if (keys["d"]) player.x += speed;
 
-  // ❌ NO OUTSIDE MAP
-  player.x = clamp(player.x, 0, canvas.width - player.size);
-  player.y = clamp(player.y, 0, canvas.height - player.size);
+  player.x = Math.max(0, Math.min(800, player.x));
+  player.y = Math.max(0, Math.min(500, player.y));
 
-  // MONSTER CHASE
   let dx = player.x - monster.x;
   let dy = player.y - monster.y;
   let dist = Math.sqrt(dx*dx + dy*dy);
 
-  monster.x += (dx / dist) * mSpeed;
-  monster.y += (dy / dist) * mSpeed;
+  monster.x += (dx/dist) * monsterSpeed();
+  monster.y += (dy/dist) * monsterSpeed();
 
-  // KEY PICKUP
-  if (!key.taken &&
-    Math.abs(player.x - key.x) < 20 &&
-    Math.abs(player.y - key.y) < 20
-  ) {
-    key.taken = true;
-    hud.textContent = "Key collected... survive.";
+  if (!orb.taken &&
+    Math.abs(player.x - orb.x) < 20 &&
+    Math.abs(player.y - orb.y) < 20) {
+    orb.taken = true;
+    hud.textContent = "ORB COLLECTED.";
   }
 
-  // WIN CONDITION
-  if (key.taken &&
-    Math.abs(player.x - monster.x) < 20 &&
-    Math.abs(player.y - monster.y) < 20
-  ) {
-    hud.textContent = "YOU ESCAPED LEVEL: " + level.toUpperCase();
-    cancelAnimationFrame(loopId);
-  }
-
-  // LOSE CONDITION
-  if (Math.abs(player.x - monster.x) < 15 &&
-      Math.abs(player.y - monster.y) < 15) {
-    hud.textContent = "YOU WERE CAUGHT.";
-    cancelAnimationFrame(loopId);
+  // NO DEATH — just reset
+  if (Math.abs(player.x - monster.x) < 15) {
+    player.x = 100;
+    player.y = 100;
+    hud.textContent = "IT FOUND YOU AGAIN.";
   }
 }
 
 function draw() {
   ctx.fillStyle = "black";
-  ctx.fillRect(0, 0, canvas.width, canvas.height);
+  ctx.fillRect(0,0,800,500);
 
-  // player
   ctx.fillStyle = "lime";
-  ctx.fillRect(player.x, player.y, player.size, player.size);
+  ctx.fillRect(player.x,player.y,player.size,player.size);
 
-  // monster
   ctx.fillStyle = "red";
-  ctx.fillRect(monster.x, monster.y, monster.size, monster.size);
+  ctx.fillRect(monster.x,monster.y,monster.size,monster.size);
 
-  // key
-  if (!key.taken) {
-    ctx.fillStyle = "yellow";
-    ctx.fillRect(key.x, key.y, key.size, key.size);
+  if (!orb.taken) {
+    ctx.fillStyle = "cyan";
+    ctx.beginPath();
+    ctx.arc(orb.x, orb.y, 8, 0, Math.PI*2);
+    ctx.fill();
   }
-}
-
-let loopId;
-
-function loop() {
-  update();
-  draw();
-  loopId = requestAnimationFrame(loop);
 }
 </script>
 
