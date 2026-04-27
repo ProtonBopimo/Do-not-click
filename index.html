@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Red Button Thing</title>
+  <style>
+    body {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+      background: #111;
+      color: white;
+      font-family: Arial;
+    }
+
+    button {
+      background: red;
+      border: none;
+      padding: 40px 60px;
+      font-size: 24px;
+      border-radius: 12px;
+      cursor: pointer;
+    }
+  </style>
+</head>
+<body>
+
+<button id="btn">DO NOT PRESS</button>
+
+<script>
+let clicks = 0;
+const btn = document.getElementById("btn");
+
+btn.addEventListener("click", () => {
+  clicks++;
+
+  if (clicks === 5) {
+    alert("bro you actually kept going 💀");
+  }
+
+  if (clicks === 10) {
+    alert("okay now you're just committed 😭");
+  }
+
+  if (clicks === 20) {
+    document.body.style.background = "purple";
+  }
+});
+</script>
+
+</body>
+</html>
