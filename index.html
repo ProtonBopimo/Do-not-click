@@ -95,17 +95,19 @@
   <div class="msg" id="msg"></div>
 
   <div id="videoContainer">
-    <iframe id="rick" allow="autoplay; encrypted-media" allowfullscreen></iframe>
+    <iframe id="video" allow="autoplay; encrypted-media" allowfullscreen></iframe>
   </div>
 </div>
 
 <script>
 let clicks = 0;
 
+let videoShownAt = null;
+
 const btn = document.getElementById("btn");
 const countText = document.getElementById("count");
 const msg = document.getElementById("msg");
-const rick = document.getElementById("rick");
+const video = document.getElementById("video");
 const container = document.getElementById("videoContainer");
 
 const randomEvents = [
@@ -151,28 +153,31 @@ btn.addEventListener("click", () => {
     randomEvents[i]();
   }
 
-  // 📺 67 CLICK EVENT (your video)
+  // 📺 67 CLICK VIDEO
   if (clicks === 67) {
-    msg.textContent = "📺 something unlocked...";
+    msg.textContent = "📺 anomaly detected...";
 
     container.style.display = "block";
+    video.src = "https://www.youtube.com/embed/fyiIY_bnecU?autoplay=1&mute=1";
 
-    const videoID = "fyiIY_bnecU";
-    rick.src = `https://www.youtube.com/embed/${videoID}?autoplay=1&mute=1`;
+    videoShownAt = clicks;
   }
 
-  if (clicks === 90) msg.textContent = "⚠ Final warning...";
-  if (clicks === 99) msg.textContent = "🚫 DO NOT CLICK AGAIN.";
-
+  // 💀 100 CLICK RICKROLL
   if (clicks === 100) {
     msg.textContent = "💀 you did this to yourself";
 
     container.style.display = "block";
-    rick.src = "https://www.youtube.com/embed/dQw4w9WgXcQ?autoplay=1&mute=1";
+    video.src = "https://www.youtube.com/embed/dQw4w9WgXcQ?autoplay=1&mute=1";
 
-    setTimeout(() => {
-      rick.src = "https://www.youtube.com/embed/dQw4w9WgXcQ?autoplay=1";
-    }, 800);
+    videoShownAt = clicks;
+  }
+
+  // 🧹 AUTO REMOVE VIDEO AFTER 15 CLICKS
+  if (videoShownAt !== null && clicks - videoShownAt >= 15) {
+    container.style.display = "none";
+    video.src = "";
+    videoShownAt = null;
   }
 });
 </script>
