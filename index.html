@@ -1,58 +1,56 @@
 <script>
-let clicks = 0;
+document.addEventListener("DOMContentLoaded", () => {
 
-const btn = document.getElementById("btn");
-const countText = document.getElementById("count");
-const msg = document.getElementById("msg");
+  let clicks = 0;
 
-const randomEvents = [
-  () => {
-    msg.textContent = "⚠ Unknown process started...";
-  },
-  () => {
-    document.body.style.background = "#001f3f";
-    msg.textContent = "📡 Sending data...";
-  },
-  () => {
-    btn.style.transform = "scale(1.3)";
-    msg.textContent = "⚙ System overload...";
-  },
-  () => {
-    btn.style.transform = "rotate(10deg)";
-    msg.textContent = "🌀 UI corruption detected...";
-  },
-  () => {
-    msg.textContent = "👁 You shouldn't be here...";
-  },
-  () => {
-    document.body.style.background = "black";
-    msg.textContent = "💀 Signal lost.";
-  }
-];
+  const btn = document.getElementById("btn");
+  const countText = document.getElementById("count");
+  const msg = document.getElementById("msg");
 
-btn.addEventListener("click", () => {
-  clicks++;
-  countText.textContent = clicks;
+  const randomEvents = [
+    () => {
+      msg.textContent = "⚠ Unknown process started...";
+    },
+    () => {
+      document.body.style.background = "#001f3f";
+      msg.textContent = "📡 Sending data...";
+    },
+    () => {
+      btn.style.transform = "scale(1.3)";
+      msg.textContent = "⚙ System overload...";
+    },
+    () => {
+      btn.style.transform = "rotate(10deg)";
+      msg.textContent = "🌀 UI corruption detected...";
+    },
+    () => {
+      msg.textContent = "👁 You shouldn't be here...";
+    },
+    () => {
+      document.body.style.background = "black";
+      msg.textContent = "💀 Signal lost.";
+    }
+  ];
 
-  // button feedback
-  btn.textContent = "CLICKED";
+  btn.addEventListener("click", () => {
+    clicks++;
+    countText.textContent = clicks;
 
-  // every 5 clicks (normal warning)
-  if (clicks % 5 === 0) {
-    msg.textContent = "⚠ System instability increasing...";
-  }
+    btn.textContent = "CLICKED";
 
-  // every 10 clicks (random chaos)
-  if (clicks % 10 === 0) {
-    const randomIndex = Math.floor(Math.random() * randomEvents.length);
-    randomEvents[randomIndex]();
-  }
+    if (clicks % 5 === 0) {
+      msg.textContent = "⚠ System instability increasing...";
+    }
 
-  // small random chance EVERY click (extra spice)
-  if (Math.random() < 0.2) {
-    msg.textContent = "??? unexpected behavior ???";
-  }
+    if (clicks % 10 === 0) {
+      const randomIndex = Math.floor(Math.random() * randomEvents.length);
+      randomEvents[randomIndex]();
+    }
+
+    if (Math.random() < 0.2) {
+      msg.textContent = "??? unexpected behavior ???";
+    }
+  });
+
 });
 </script>
-</body>
-</html>
