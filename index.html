@@ -1,50 +1,109 @@
 <!DOCTYPE html>
 <html>
 <head>
-  <title>Red Button Thing</title>
+  <title>System Alert</title>
+
   <style>
     body {
+      margin: 0;
+      height: 100vh;
+      background: #008080;
       display: flex;
       justify-content: center;
       align-items: center;
-      height: 100vh;
-      background: #111;
-      color: white;
-      font-family: Arial;
+      font-family: Tahoma, Arial;
+      transition: 0.3s;
     }
 
-    button {
+    .window {
+      width: 420px;
+      background: #c0c0c0;
+      border: 3px solid black;
+      box-shadow: 5px 5px 0 black;
+      padding: 20px;
+      text-align: center;
+    }
+
+    .title {
+      background: navy;
+      color: white;
+      padding: 5px;
+      font-weight: bold;
+      margin-bottom: 15px;
+    }
+
+    .btn {
+      width: 120px;
+      height: 120px;
+      border-radius: 50%;
+      border: 4px solid black;
       background: red;
-      border: none;
-      padding: 40px 60px;
-      font-size: 24px;
-      border-radius: 12px;
+      color: white;
+      font-size: 20px;
       cursor: pointer;
+      margin: 15px auto;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      user-select: none;
+    }
+
+    .counter {
+      font-size: 18px;
+      margin-top: 10px;
+    }
+
+    .msg {
+      margin-top: 15px;
+      font-weight: bold;
+      color: darkred;
+      min-height: 20px;
     }
   </style>
 </head>
+
 <body>
 
-<button id="btn">DO NOT PRESS</button>
+<div class="window">
+  <div class="title">Windows Security Alert</div>
+
+  <div>Suspicious activity detected.</div>
+
+  <div class="btn" id="btn">CLICK</div>
+
+  <div class="counter">Clicks: <span id="count">0</span></div>
+
+  <div class="msg" id="msg"></div>
+</div>
 
 <script>
 let clicks = 0;
+
 const btn = document.getElementById("btn");
+const countText = document.getElementById("count");
+const msg = document.getElementById("msg");
 
 btn.addEventListener("click", () => {
   clicks++;
+  countText.textContent = clicks;
 
-  if (clicks === 5) {
-    alert("bro you actually kept going 💀");
+  btn.textContent = "CLICKED";
+
+  // every 5 clicks
+  if (clicks % 5 === 0) {
+    msg.textContent = "⚠ System instability increasing...";
   }
 
-  if (clicks === 10) {
-    alert("okay now you're just committed 😭");
+  // every 10 clicks (special events)
+  if (clicks % 10 === 0) {
+    msg.textContent = "💀 CRITICAL SYSTEM EVENT TRIGGERED";
+    document.body.style.background = "#550000";
   }
 
-  if (clicks === 20) {
-    document.body.style.background = "purple";
-  }
+  // extra spice
+  if (clicks === 1) btn.textContent = "DON'T";
+  if (clicks === 3) btn.textContent = "STOP";
+  if (clicks === 7) btn.textContent = "WHY";
 });
 </script>
 
